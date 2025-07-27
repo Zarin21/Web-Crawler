@@ -14,7 +14,7 @@ public class CrawlerService {
 
     @GetMapping("/crawl")
     public boolean crawl(@RequestParam String url) {
-        HashSet<String> CrawlSet = new HashSet<String>();  // To-Crawl Set
+        HashSet<String> CrawlSet = new HashSet<String>();
         ConcurrentLinkedQueue<String> CrawlQueue = new ConcurrentLinkedQueue<>();
 
         CrawlQueue.add(url);
@@ -23,14 +23,11 @@ public class CrawlerService {
             crawlNext(CrawlQueue, CrawlSet);
         }
 
-        return true
+        return true;
     }
 
     public boolean crawlNext(ConcurrentLinkedQueue<String> CrawlQueue, HashSet<String> CrawlSet) {
-        String url CrawlQueue.poll();
-        // if (CrawlSet.contains(url)) {
-        //     return false;
-        // }
+        String url = CrawlQueue.poll();
         parse(url, CrawlQueue);
 
         CrawlSet.add(url);
@@ -48,11 +45,15 @@ public class CrawlerService {
                 }
             }
 
-            // Add tokens to the database
+            createIndexes(doc);
             
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void createIndexes(Document doc) {
+        
     }
 }
 
