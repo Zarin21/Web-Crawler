@@ -1,4 +1,4 @@
-package com.web_crawler.backend.service;
+package com.web_crawler.backend;
 
 import com.web_crawler.backend.model.Keyword;
 import com.web_crawler.backend.repository.KeywordRepository;
@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = "http://localhost:3000")
+
 // API Endpoint for /api/crawl & /api/search
 // Handles web crawling and indexing of keywords.
 public class CrawlerService {

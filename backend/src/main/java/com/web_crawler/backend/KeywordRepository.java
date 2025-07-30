@@ -1,4 +1,4 @@
-package com.web_crawler.backend.repository;
+package com.web_crawler.backend;
 
 import com.web_crawler.backend.model.Keyword;
 import org.springframework.data.mongodb.repository.MongoRepository;

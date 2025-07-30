@@ -1,3 +1,5 @@
+package com.web_crawler.backend;
+
 // MongoDB entity mapping keywords to URLs.
 @Document(collection = "inverted_index_table")
 public class Keyword {
