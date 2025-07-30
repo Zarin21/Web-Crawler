@@ -1,7 +1,7 @@
 package com.web_crawler.backend;
 
-import com.web_crawler.backend.model.Keyword;
-import com.web_crawler.backend.repository.KeywordRepository;
+import com.web_crawler.backend.Keyword;
+import com.web_crawler.backend.KeywordRepository;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -71,7 +71,7 @@ public class CrawlerService {
             String[] words = header.text().toLowerCase().split("\\W+");
             for (String word : words) {
                 if (word.length() > 2) {    // Ignore short/common words
-                    keywordRepository.save(new IndexedKeyword(word, url));
+                    keywordRepository.save(new Keyword(word, url));
                 }
             }
         }

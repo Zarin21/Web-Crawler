@@ -1,5 +1,9 @@
 package com.web_crawler.backend;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.TextIndexed;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 // MongoDB entity mapping keywords to URLs.
 @Document(collection = "inverted_index_table")
 public class Keyword {
