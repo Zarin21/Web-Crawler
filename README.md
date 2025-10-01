@@ -12,5 +12,6 @@
 `cd ../frontend && npm start`
 
 ## Future plans
-- Use a MongoDB Inverted Index Table for faster quries.
+- Use a MongoDB Inverted Index Table for faster queries.
 - Improve UI for the search function(some sort of loading animation).
+- Support search for multiple keywords
