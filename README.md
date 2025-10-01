@@ -1,4 +1,16 @@
 # Web-Crawler
-(needs some fixing)
-- A bare-bones web-crawler application with a Java/Spring backend & a React frontend.
-- Uses an Inverted Index Database using MongoDB to enable search queries.
+
+- A bare-bones web-crawler service with a Java/Spring backend & a React frontend.
+- Uses an Inverted Index Table to enable search queries.
+- Uses MVC Architecture.
+
+# Run
+### Run the backend service
+`cd backend && ./gradlew bootRun`
+
+### Run the React frontend
+`cd ../frontend && npm start`
+
+## Future plans
+- Use a MongoDB Inverted Index Table for faster quries.
+- Improve UI for the search function(some sort of loading animation).

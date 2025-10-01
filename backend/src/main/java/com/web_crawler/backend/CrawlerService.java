@@ -1,84 +1,99 @@
 package com.web_crawler.backend;
 
-import com.web_crawler.backend.Keyword;
-import com.web_crawler.backend.KeywordRepository;
+import com.web_crawler.backend.SearchResult;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.net.URL;
+import java.util.*;
+import java.util.stream.Collectors;
 
-@RestController
-@RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:3000")
-
-// API Endpoint for /api/crawl & /api/search
-// Handles web crawling and indexing of keywords.
+@Service
 public class CrawlerService {
+    private Map<String, Set<String>> invertedIndex = new HashMap<>();
+    private Set<String> visitedUrls = new HashSet<>();
+    private Map<String, String> urlTitles = new HashMap<>();
 
-    private final KeywordRepository keywordRepository;
-    private final HashSet<String> crawlSet = new HashSet<>();
-
-    public CrawlerService(KeywordRepository keywordRepository) {
-        this.keywordRepository = keywordRepository;
+    public void crawl(String startUrl, int maxDepth) {
+        // Clear previous crawl data
+        invertedIndex.clear();
+        visitedUrls.clear();
+        urlTitles.clear();
+        crawlRecursive(startUrl, 0, maxDepth);
     }
 
-    @GetMapping("/crawl")
-    public boolean crawl(@RequestParam String url, @RequestParam int depth) {
-        ConcurrentLinkedQueue<String> crawlQueue = new ConcurrentLinkedQueue<>();
-        crawlQueue.add(url);
-        crawlSet.add(url);
-
-        int currentDepth = 0;
-        while (!crawlQueue.isEmpty() && currentDepth <= depth) {
-            int levelSize = crawlQueue.size();
-            for (int i = 0; i < levelSize; i++) {
-                crawlNext(crawlQueue);
-            }
-            currentDepth++;
+    private void crawlRecursive(String url, int currentDepth, int maxDepth) {
+        if (currentDepth > maxDepth || visitedUrls.contains(url)) {
+            return;
         }
-
-        return true;
-    }
-
-    public void crawlNext(ConcurrentLinkedQueue<String> crawlQueue) {
-        String url = crawlQueue.poll();
-        if (url == null) return;
 
         try {
-            Document doc = Jsoup.connect(url).get();
-            Elements links = doc.select("a[href]");
-            for (Element link : links) {
-                String absUrl = link.absUrl("href");
-                if (!crawlSet.contains(absUrl)) {
-                    crawlQueue.add(absUrl);
-                    crawlSet.add(absUrl);
+            visitedUrls.add(url);
+            Document doc = Jsoup.connect(url)
+                    .userAgent("Mozilla/5.0")
+                    .timeout(5000)
+                    .get();
+            String pageTitle = doc.title();
+            urlTitles.put(url, pageTitle);
+
+            Elements headings = doc.select("h1, h2, h3, h4, h5, h6");
+            
+            for (Element heading : headings) {
+                String text = heading.text().toLowerCase().trim();
+
+                String[] words = text.split("\\s+");
+                
+                for (String word : words) {
+                    word = word.replaceAll("[^a-zA-Z0-9]", "");
+                    
+                    if (!word.isEmpty() && word.length() > 2) {
+                        invertedIndex.computeIfAbsent(word, k -> new HashSet<>()).add(url);
+                    }
                 }
             }
-            createIndexes(doc, url);
+            
+            if (currentDepth < maxDepth) {
+                Elements links = doc.select("a[href]");
+                
+                for (Element link : links) {
+                    String nextUrl = link.absUrl("href");
+
+                    if (nextUrl.startsWith("http") && isSameDomain(url, nextUrl)) {
+                        crawlRecursive(nextUrl, currentDepth + 1, maxDepth);
+                    }
+                }
+            }
+            
         } catch (IOException e) {
-            System.err.println("Failed to crawl: " + url);
+            System.err.println("Error crawling " + url + ": " + e.getMessage());
         }
     }
 
-    public void createIndexes(Document doc, String url) {
-        Elements headers = doc.select("h1, h2, h3, h4, h5, h6");
-        for (Element header : headers) {
-            String[] words = header.text().toLowerCase().split("\\W+");
-            for (String word : words) {
-                if (word.length() > 2) {    // Ignore short/common words
-                    keywordRepository.save(new Keyword(word, url));
-                }
-            }
+    private boolean isSameDomain(String url1, String url2) {
+        try {
+            String domain1 = new URL(url1).getHost();
+            String domain2 = new URL(url2).getHost();
+            return domain1.equals(domain2);
+        } catch (Exception e) {
+            return false;
         }
     }
 
-    @GetMapping("/search")
-    public Object search(@RequestParam String query) {
-        return keywordRepository.findByKeywordText(query);
+    public List<SearchResult> search(String keyword) {
+        keyword = keyword.toLowerCase().trim();
+        
+        Set<String> urls = invertedIndex.getOrDefault(keyword, new HashSet<>());
+        
+        return urls.stream()
+                .map(url -> new SearchResult(url, urlTitles.getOrDefault(url, "Untitled")))
+                .collect(Collectors.toList());
+    }
+
+    public Map<String, Set<String>> getInvertedIndex() {
+        return invertedIndex;
     }
 }
