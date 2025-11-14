@@ -15,4 +15,4 @@
 - Use a MongoDB Inverted Index Table for faster queries.
 - Improve UI for the search function(some sort of loading animation).
 - Support search for multiple keywords
-- Deploy the project
+- Deploy the project (both frontend and backend)
