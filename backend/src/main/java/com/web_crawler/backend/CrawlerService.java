@@ -33,14 +33,14 @@ public class CrawlerService {
 
         try {
             visitedUrls.add(url);
-            Document doc = Jsoup.connect(url)
+            Document doc = Jsoup.connect(url)  // fetch data
                     .userAgent("Mozilla/5.0")
                     .timeout(5000)
                     .get();
             String pageTitle = doc.title();
             urlTitles.put(url, pageTitle);
 
-            Elements headings = doc.select("h1, h2, h3, h4, h5, h6");
+            Elements headings = doc.select("h1, h2, h3, h4, h5, h6, strong, b, title");
             
             for (Element heading : headings) {
                 String text = heading.text().toLowerCase().trim();

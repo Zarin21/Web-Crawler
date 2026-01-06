@@ -1,28 +1,28 @@
-import React, { useState } from 'react';
-import { Search, Globe, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
+import React, { useState } from 'react'
+import { Search, Globe, Loader2, AlertCircle, CheckCircle } from 'lucide-react'
 
 export default function WebCrawlerApp() {
-  const [crawlUrl, setCrawlUrl] = useState('');
-  const [depth, setDepth] = useState(1);
-  const [searchKeyword, setSearchKeyword] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
-  const [crawling, setCrawling] = useState(false);
-  const [searching, setSearching] = useState(false);
-  const [crawlMessage, setCrawlMessage] = useState('');
-  const [crawlSuccess, setCrawlSuccess] = useState(false);
-  
-  const API_BASE_URL = 'http://localhost:8080/api';
+  const [crawlUrl, setCrawlUrl] = useState('')
+  const [depth, setDepth] = useState(1)
+  const [searchKeyword, setSearchKeyword] = useState('')
+  const [searchResults, setSearchResults] = useState([])
+  const [crawling, setCrawling] = useState(false)
+  const [searching, setSearching] = useState(false)
+  const [crawlMessage, setCrawlMessage] = useState('')
+  const [crawlSuccess, setCrawlSuccess] = useState(false)
+
+  const API_BASE_URL = 'https://web-crawler-backend-4x3vdz77ea-uc.a.run.app/api'
 
   const handleCrawl = async () => {
     if (!crawlUrl) {
-      setCrawlMessage('Please enter a URL');
-      setCrawlSuccess(false);
-      return;
+      setCrawlMessage('Please enter a URL')
+      setCrawlSuccess(false)
+      return
     }
 
-    setCrawling(true);
-    setCrawlMessage('');
-    setCrawlSuccess(false);
+    setCrawling(true)
+    setCrawlMessage('')
+    setCrawlSuccess(false)
 
     try {
       const response = await fetch(`${API_BASE_URL}/crawl`, {
@@ -32,33 +32,33 @@ export default function WebCrawlerApp() {
         },
         body: JSON.stringify({
           url: crawlUrl,
-          depth: depth
-        })
-      });
+          depth: depth,
+        }),
+      })
 
-      const data = await response.text();
-      
+      const data = await response.text()
+
       if (response.ok) {
-        setCrawlMessage(data);
-        setCrawlSuccess(true);
+        setCrawlMessage(data)
+        setCrawlSuccess(true)
       } else {
-        setCrawlMessage(data || 'Failed to crawl website');
-        setCrawlSuccess(false);
+        setCrawlMessage(data || 'Failed to crawl website')
+        setCrawlSuccess(false)
       }
     } catch (error) {
-      setCrawlMessage('Error connecting to backend: ' + error.message);
-      setCrawlSuccess(false);
+      setCrawlMessage('Error connecting to backend: ' + error.message)
+      setCrawlSuccess(false)
     } finally {
-      setCrawling(false);
+      setCrawling(false)
     }
-  };
+  }
 
   const handleSearch = async () => {
     if (!searchKeyword) {
-      return;
+      return
     }
 
-    setSearching(true);
+    setSearching(true)
 
     try {
       const response = await fetch(`${API_BASE_URL}/search`, {
@@ -67,35 +67,35 @@ export default function WebCrawlerApp() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          keyword: searchKeyword
-        })
-      });
+          keyword: searchKeyword,
+        }),
+      })
 
       if (response.ok) {
-        const data = await response.json();
-        setSearchResults(data);
+        const data = await response.json()
+        setSearchResults(data)
       } else {
-        setSearchResults([]);
+        setSearchResults([])
       }
     } catch (error) {
-      console.error('Error searching:', error);
-      setSearchResults([]);
+      console.error('Error searching:', error)
+      setSearchResults([])
     } finally {
-      setSearching(false);
+      setSearching(false)
     }
-  };
+  }
 
   const handleCrawlKeyPress = (e) => {
     if (e.key === 'Enter') {
-      handleCrawl();
+      handleCrawl()
     }
-  };
+  }
 
   const handleSearchKeyPress = (e) => {
     if (e.key === 'Enter') {
-      handleSearch();
+      handleSearch()
     }
-  };
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -131,14 +131,13 @@ export default function WebCrawlerApp() {
                 type="text"
                 value={depth}
                 onChange={(e) => {
-                  const val = parseInt(e.target.value);
-                  setDepth(isNaN(val) ? 0 : val);
+                  const val = parseInt(e.target.value)
+                  setDepth(isNaN(val) ? 0 : val)
                 }}
                 onKeyPress={handleCrawlKeyPress}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
               />
             </div>
-
 
             <button
               onClick={handleCrawl}
@@ -151,19 +150,19 @@ export default function WebCrawlerApp() {
                   Crawling...
                 </>
               ) : (
-                <>
-                  Start
-                </>
+                <>Start</>
               )}
             </button>
           </div>
 
           {crawlMessage && (
-            <div className={`mt-4 p-4 rounded-lg flex items-start ${
-              crawlSuccess 
-                ? 'bg-green-50 border border-green-200' 
-                : 'bg-red-50 border border-red-200'
-            }`}>
+            <div
+              className={`mt-4 p-4 rounded-lg flex items-start ${
+                crawlSuccess
+                  ? 'bg-green-50 border border-green-200'
+                  : 'bg-red-50 border border-red-200'
+              }`}
+            >
               {crawlSuccess ? (
                 <CheckCircle className="w-5 h-5 text-green-600 mr-3 flex-shrink-0 mt-0.5" />
               ) : (
@@ -213,7 +212,8 @@ export default function WebCrawlerApp() {
             {searchResults.length > 0 ? (
               <div>
                 <h3 className="text-lg font-semibold text-gray-700 mb-3">
-                  Found {searchResults.length} result{searchResults.length !== 1 ? 's' : ''}
+                  Found {searchResults.length} result
+                  {searchResults.length !== 1 ? 's' : ''}
                 </h3>
                 <div className="space-y-3">
                   {searchResults.map((result, index) => (
@@ -240,7 +240,9 @@ export default function WebCrawlerApp() {
               <div className="text-center py-8 text-gray-500">
                 <AlertCircle className="w-12 h-12 mx-auto mb-3 text-gray-400" />
                 <p>No results found for "{searchKeyword}"</p>
-                <p className="text-sm mt-2">Try crawling a website first or search for different keywords</p>
+                <p className="text-sm mt-2">
+                  Try crawling a website first or search for different keywords
+                </p>
               </div>
             ) : !searchKeyword ? (
               <div className="text-center py-8 text-gray-500">
@@ -252,5 +254,5 @@ export default function WebCrawlerApp() {
         </div>
       </div>
     </div>
-  );
+  )
 }
